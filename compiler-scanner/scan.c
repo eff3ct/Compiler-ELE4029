@@ -143,12 +143,6 @@ TokenType getToken(void)
                     save = FALSE;
                     currentToken = ENDFILE;
                     break;
-                case '=':
-                    currentToken = EQ;
-                    break;
-                case '<':
-                    currentToken = LT;
-                    break;
                 case '+':
                     currentToken = PLUS;
                     break;
@@ -157,9 +151,6 @@ TokenType getToken(void)
                     break;
                 case '*':
                     currentToken = TIMES;
-                    break;
-                case '/':
-                    currentToken = OVER;
                     break;
                 case '(':
                     currentToken = LPAREN;

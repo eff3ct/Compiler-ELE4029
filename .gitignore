@@ -1,2 +1,4 @@
 *.o
 cminus_cimpl
+cminus_lex
+lex.yy.c
