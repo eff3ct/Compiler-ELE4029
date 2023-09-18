@@ -16,7 +16,7 @@ clean:
 	-rm -rvf ./temporary_for_grading
 
 cminus_cimpl: $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) 
+	$(CC) $(CFLAGS) -o $@ $(OBJS)
 
 cminus_lex: $(OBJS_LEX)
 	$(CC) $(CFLAGS) -o $@ $(OBJS_LEX) -lfl

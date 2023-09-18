@@ -17,15 +17,22 @@ void printToken(TokenType token, const char *tokenString)
     switch (token)
     {
     case IF:
-    case THEN:
+        fprintf(listing, "reserved word: if\n");
+        return;
     case ELSE:
-    case END:
-    case REPEAT:
-    case UNTIL:
-    case READ:
-    case WRITE:
-        fprintf(listing,
-                "reserved word: %s\n", tokenString);
+        fprintf(listing, "reserved word: else\n");
+        return;
+    case WHILE:
+        fprintf(listing, "reserved word: while\n");
+        return;
+    case RETURN:
+        fprintf(listing, "reserved word: return\n");
+        return;
+    case INT:
+        fprintf(listing, "reserved word: int\n");
+        break;
+    case VOID:
+        fprintf(listing, "reserved word: void\n");
         break;
     case ASSIGN:
         fprintf(listing, ":=\n");
@@ -41,6 +48,12 @@ void printToken(TokenType token, const char *tokenString)
         break;
     case RPAREN:
         fprintf(listing, ")\n");
+        break;
+    case LCURLY:
+        fprintf(listing, "{\n");
+        break;
+    case RCURLY:
+        fprintf(listing, "}\n");
         break;
     case SEMI:
         fprintf(listing, ";\n");
@@ -71,6 +84,9 @@ void printToken(TokenType token, const char *tokenString)
     case ERROR:
         fprintf(listing,
                 "ERROR: %s\n", tokenString);
+        break;
+    case COMMA:
+        fprintf(listing, ",\n");
         break;
     default: /* should never happen */
         fprintf(listing, "Unknown token: %d\n", token);

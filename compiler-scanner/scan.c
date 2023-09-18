@@ -13,11 +13,16 @@
 typedef enum
 {
     START,
-    INASSIGN,
-    INCOMMENT,
     INNUM,
     INID,
-    DONE
+    DONE,
+    INEQ,
+    INLT,
+    INGT,
+    INNE,
+    INOVER,
+    INCOMMENT,
+    INCOMMENT_,
 } StateType;
 
 /* lexeme of identifier or reserved word */
@@ -72,7 +77,13 @@ static struct
     char *str;
     TokenType tok;
 } reservedWords[MAXRESERVED] = {
-    {"if", IF}, {"then", THEN}, {"else", ELSE}, {"end", END}, {"repeat", REPEAT}, {"until", UNTIL}, {"read", READ}, {"write", WRITE}};
+    {"if", IF}, 
+    {"else", ELSE}, 
+    {"while", WHILE}, 
+    {"return", RETURN}, 
+    {"int", INT}, 
+    {"void", VOID},
+};
 
 /* lookup an identifier to see if it is a reserved word */
 /* uses linear search */
@@ -111,15 +122,18 @@ TokenType getToken(void)
                 state = INNUM;
             else if (isalpha(c))
                 state = INID;
-            else if (c == ':')
-                state = INASSIGN;
             else if ((c == ' ') || (c == '\t') || (c == '\n'))
                 save = FALSE;
-            else if (c == '{')
-            {
-                save = FALSE;
-                state = INCOMMENT;
-            }
+            else if (c == '=')
+                state = INEQ;
+            else if (c == '>')
+                state = INGT;
+            else if (c == '<')
+                state = INLT;
+            else if (c == '!')
+                state = INNE;
+            else if (c == '/')
+                state = INOVER;
             else
             {
                 state = DONE;
@@ -153,34 +167,28 @@ TokenType getToken(void)
                 case ')':
                     currentToken = RPAREN;
                     break;
+                case '[':
+                    currentToken = LBRACE;
+                    break;
+                case ']':
+                    currentToken = RBRACE;
+                    break;
+                case '{':
+                    currentToken = LCURLY;
+                    break;
+                case '}':
+                    currentToken = RCURLY;
+                    break;
                 case ';':
                     currentToken = SEMI;
+                    break;
+                case ',':
+                    currentToken = COMMA;
                     break;
                 default:
                     currentToken = ERROR;
                     break;
                 }
-            }
-            break;
-        case INCOMMENT:
-            save = FALSE;
-            if (c == EOF)
-            {
-                state = DONE;
-                currentToken = ENDFILE;
-            }
-            else if (c == '}')
-                state = START;
-            break;
-        case INASSIGN:
-            state = DONE;
-            if (c == '=')
-                currentToken = ASSIGN;
-            else
-            { /* backup in the input */
-                ungetNextChar();
-                save = FALSE;
-                currentToken = ERROR;
             }
             break;
         case INNUM:
@@ -201,6 +209,104 @@ TokenType getToken(void)
                 currentToken = ID;
             }
             break;
+        case INEQ:
+            /* check for == */
+            if (c == '=')
+            {
+                currentToken = EQ;
+                state = DONE;
+            }
+            else
+            {
+                ungetNextChar();
+                save = FALSE;
+                state = DONE;
+                currentToken = ASSIGN;
+            }
+            break;
+        case INGT:
+            /* check for >= */
+            if (c == '=')
+            {
+                currentToken = GE;
+                state = DONE;
+            }
+            else
+            {
+                ungetNextChar();
+                save = FALSE;
+                state = DONE;
+                currentToken = GT;
+            }
+            break;
+        case INLT:
+            /* check for <= */
+            if (c == '=')
+            {
+                currentToken = LE;
+                state = DONE;
+            }
+            else
+            {
+                ungetNextChar();
+                save = FALSE;
+                state = DONE;
+                currentToken = LT;
+            }
+            break;
+        case INNE:
+            /* check for != */
+            if (c == '=')
+            {
+                currentToken = NE;
+                state = DONE;
+            }
+            else
+            {
+                ungetNextChar();
+                save = FALSE;
+                state = DONE;
+                currentToken = ERROR;
+            }
+            break;
+        case INOVER:
+            /* check comment or division operator */
+            if (c == '*')
+            {
+                save = FALSE;
+                state = INCOMMENT;
+                tokenStringIndex--;
+            }
+            else
+            {
+                ungetNextChar();
+                save = FALSE;
+                state = DONE;
+                currentToken = OVER;
+            }
+            break;
+        case INCOMMENT:
+            save = FALSE;
+            if (c == '*')
+                state = INCOMMENT_;
+            else if (c == EOF)
+            {
+                state = DONE;
+                currentToken = ENDFILE;
+            }
+            break;
+        case INCOMMENT_:
+            save = FALSE;
+            if (c == '/')
+                state = START;
+            else if (c == EOF)
+            {
+                state = DONE;
+                currentToken = ENDFILE;
+            }
+            else
+                state = INCOMMENT;
+            break;
         case DONE:
         default: /* should never happen */
             fprintf(listing, "Scanner Bug: state= %d\n", state);
@@ -213,7 +319,7 @@ TokenType getToken(void)
         if (state == DONE)
         {
             tokenString[tokenStringIndex] = '\0';
-            if (currentToken == ID)
+            if (currentToken == ID) 
                 currentToken = reservedLookup(tokenString);
         }
     }
