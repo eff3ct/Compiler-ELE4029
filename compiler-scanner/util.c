@@ -67,6 +67,12 @@ void printToken(TokenType token, const char *tokenString)
     case RCURLY:
         fprintf(listing, "}\n");
         break;
+    case LBRACE:
+        fprintf(listing, "[\n");
+        break;
+    case RBRACE:
+        fprintf(listing, "]\n");
+        break;
     case SEMI:
         fprintf(listing, ";\n");
         break;

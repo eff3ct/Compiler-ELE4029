@@ -16,7 +16,7 @@ char tokenString[MAXTOKENLEN+1];
 digit       [0-9]
 number      {digit}+
 letter      [a-zA-Z]
-identifier  {letter}+
+identifier  {letter}({letter}|{digit})*
 newline     \n
 whitespace  [ \t]+
 
@@ -30,6 +30,7 @@ whitespace  [ \t]+
 "void"          {return VOID;}
 "="             {return ASSIGN;}
 "=="            {return EQ;}
+"!="            {return NE;}
 "<"             {return LT;}
 ">"             {return GT;}
 ">="            {return GE;}
@@ -56,12 +57,18 @@ whitespace  [ \t]+
                     char c;
                     c = input();
                     if (c == '\n') lineno++;
-                    if (c == EOF) return;
+                    if (c == 0) {
+                      lineno++;
+                      break;
+                    }
                     if (c == '*') {
                       c = input();
                       if (c == '/') break;
                       if (c == '\n') lineno++;
-                      if (c == EOF) return;
+                      if (c == 0) {
+                        lineno++;
+                        break;
+                      }
                     }
                   }
                 }
