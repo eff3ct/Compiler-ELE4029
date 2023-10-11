@@ -57,18 +57,12 @@ whitespace  [ \t]+
                     char c;
                     c = input();
                     if (c == '\n') lineno++;
-                    if (c == 0) {
-                      lineno++;
-                      break;
-                    }
+                    if (c == 0) break;
                     if (c == '*') {
                       c = input();
                       if (c == '/') break;
                       if (c == '\n') lineno++;
-                      if (c == 0) {
-                        lineno++;
-                        break;
-                      }
+                      if (c == 0) break;
                     }
                   }
                 }
